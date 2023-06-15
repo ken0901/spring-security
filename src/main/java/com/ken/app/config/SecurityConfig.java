@@ -24,4 +24,19 @@ public class SecurityConfig {
         http.csrf().disable();
         return http.build();
     }
+
+    // Cross-Origin Resource Sharing (CORS):
+    // Specification that allows you to configure which cross-domain requests are allowed
+    /*
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedMethods("*")
+                        .allowedOrigins("http://localhost:3000");
+            }
+        };
+    }
+     */
 }
