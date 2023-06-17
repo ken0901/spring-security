@@ -8,6 +8,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -63,11 +64,13 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService  userDetailsService(DataSource dataSource) {
         var user = User.withUsername("ken")
-                .password("{noop}lee")
+               // .password("{noop}lee")
+                .password("lee").passwordEncoder(str -> passwordEncoder().encode(str))
                 .roles("USER")
                 .build();
         var admin = User.withUsername("katie")
-                .password("{noop}lee")
+                //.password("{noop}lee")
+                .password("lee").passwordEncoder(str -> passwordEncoder().encode(str))
                 .roles("ADMIN")
                 .build();
 
@@ -76,6 +79,12 @@ public class SecurityConfig {
         jdbcUserDetailsManager.createUser(admin);
 
         return jdbcUserDetailsManager;
+    }
+
+    // Store bcrypt encoded passwords.
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
     }
 
     // Cross-Origin Resource Sharing (CORS):
