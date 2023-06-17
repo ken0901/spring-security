@@ -1,23 +1,25 @@
 package com.ken.app.config;
 
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 
 import javax.sql.DataSource;
 
-//@Configuration -- move to JwtSecurityConfig.java
-public class SecurityConfig {
+@Configuration
+public class JwtSecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -29,28 +31,12 @@ public class SecurityConfig {
         http.sessionManagement(
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
-        //http.formLogin();
         http.httpBasic();
         http.csrf().disable();
         http.headers().frameOptions().sameOrigin();
+        http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
         return http.build();
     }
-
-    // User Credential in memory
-    /*
-    @Bean
-    public UserDetailsService  userDetailsService() {
-        var user = User.withUsername("ken")
-                .password("{noop}lee")
-                .roles("USER")
-                .build();
-        var admin = User.withUsername("katie")
-                .password("{noop}lee")
-                .roles("ADMIN")
-                .build();
-        return new InMemoryUserDetailsManager(user,admin);
-    }
-    */
 
     @Bean
     public DataSource dataSource(){
@@ -62,9 +48,9 @@ public class SecurityConfig {
 
     // User Credential in H2 Database depends on roles(admin,user)
     @Bean
-    public UserDetailsService  userDetailsService(DataSource dataSource) {
+    public UserDetailsService userDetailsService(DataSource dataSource) {
         var user = User.withUsername("ken")
-               // .password("{noop}lee")
+                // .password("{noop}lee")
                 .password("lee").passwordEncoder(str -> passwordEncoder().encode(str))
                 .roles("USER")
                 .build();
@@ -87,18 +73,8 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Cross-Origin Resource Sharing (CORS):
-    // Specification that allows you to configure which cross-domain requests are allowed
-    /*
     @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedMethods("*")
-                        .allowedOrigins("http://localhost:3000");
-            }
-        };
+    public JwtDecoder jwtDecoder(){
+        return jwtDecoder();
     }
-     */
 }
