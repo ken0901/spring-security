@@ -1,8 +1,11 @@
 package com.ken.app.controller;
 
-import org.apache.coyote.Request;
+import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +23,10 @@ public class TodoController {
     }
 
     @GetMapping("/users/{username}/todos")
+    @PreAuthorize("hasRole('USER') and #username == authentication.name")
+    @PostAuthorize("returnObject.username == 'ken'")
+    @RolesAllowed({"ADMIN","USER"})
+    @Secured({"ROLE_ADMIN","ROLE_USER"})
     public Todo retrieveTodosForByUsername(@PathVariable String username){
         return TODOS_LIST.get(0);
     }
