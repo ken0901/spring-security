@@ -17,7 +17,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -29,6 +31,20 @@ import java.util.UUID;
 
 @Configuration
 public class JwtSecurityConfig {
+
+    // JWT Authentication using Spring Boot's OAuth2
+    // 1. Create Key Pair
+    // 2. Create RSA KEy object using Key Pair
+    // 3. Create JWKSource(JSON Web Key source)
+    // 4. RSA Public Key for decoding
+
+    // JWT Flow
+    // 1. Create a JWT
+    // -> Needs Encoding - 1. User Credentials 2. User data (payload) 3. RSA key pair
+    // 2. Send JWT as part of request header
+    // -> Authorization Header, Bearer Token, Authorization:Bearer ${JWT_TOKEN}
+    // 3. JWT is verified
+    // -> Needs Decoding, RSA key pair (Public Key)
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -128,5 +144,10 @@ public class JwtSecurityConfig {
         return NimbusJwtDecoder
                 .withPublicKey(rsaKey.toRSAPublicKey())
                 .build();
+    }
+
+    @Bean
+    public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
+        return new NimbusJwtEncoder(jwkSource);
     }
 }
